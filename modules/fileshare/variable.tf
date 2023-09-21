@@ -1,17 +1,29 @@
 variable "create_resource_group" {
+<<<<<<< HEAD
   description = "Whether to create resource group"
+=======
+  description = "Boolean flag which controls if new resource group needs to be created"
+>>>>>>> 6b07966 (adding gitignore)
   default     = false
   type        = bool
 }
 
 variable "resource_group_name" {
+<<<<<<< HEAD
   description = "A container that holds related resources for an Azure solution"
+=======
+  description = "A logical group that holds related resources for an Azure solution"
+>>>>>>> 6b07966 (adding gitignore)
   default     = "rg-fileshare-01"
   type        = string
 }
 
 variable "location" {
+<<<<<<< HEAD
   description = "The location/region to keep all your network resources. To get the list of all locations with table format from azure cli, run 'az account list-locations -o table'"
+=======
+  description = "The location/region to keep all your network resources"
+>>>>>>> 6b07966 (adding gitignore)
   default     = "uksouth"
   type        = string
 }
@@ -52,15 +64,37 @@ variable "min_tls_version" {
   default     = "TLS1_2"
   type        = string
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6b07966 (adding gitignore)
 variable "enable_protocal" {
   description = "Protocal to be enabled SMB or NFS"
   type        = string
   default     = "SMB"
 }
 
+<<<<<<< HEAD
 variable "enable_advanced_threat_protection" {
   description = "Boolean flag which controls if advanced threat protection is enabled."
   default     = false
+=======
+variable "large_file_share_enabled" {
+  description = "Protocal to be enabled SMB or NFS"
+  type        = bool
+  default     = false
+}
+
+variable "enable_advanced_threat_protection" {
+  description = "Boolean flag which controls if files are larger than 5120GB (5TB) then it should be true"
+  default     = false
+  type        = bool
+}
+
+variable "cross_tenant_replication_enabled" {
+  description = "Boolean flag which controls if cross tenant replication is enabled."
+  default     = true
+>>>>>>> 6b07966 (adding gitignore)
   type        = bool
 }
 
@@ -73,10 +107,17 @@ variable "public_network_access_enabled" { ## Chanllage here after public access
 variable "network_rules" {
   description = "Network rules restricing access to the storage account."
   type = object({
+<<<<<<< HEAD
     default_action = optional(string, "Deny")  #Deny or Allow
     bypass     = optional(list(string), ["AzureServices", "Logging", "Metrics"])  #traffic bypass for Logging/Metrics/AzureServices or None
     ip_rules   = optional(list(string), []) #only list of Public Ip's are allowd
     virtual_network_subnet_ids = optional(list(string), []) #List of Snet ids to secure storage account
+=======
+    default_action             = optional(string, "Deny")                                        #Deny or Allow
+    bypass                     = optional(list(string), ["AzureServices", "Logging", "Metrics"]) #traffic bypass for Logging/Metrics/AzureServices or None
+    ip_rules                   = optional(list(string), [])                                      #only list of Public Ip's are allowd
+    virtual_network_subnet_ids = optional(list(string), [])                                      #List of Snet ids to secure storage account
+>>>>>>> 6b07966 (adding gitignore)
   })
   default = {}
 }
@@ -92,8 +133,52 @@ variable "file_shares" {
   ]
 }
 
+<<<<<<< HEAD
+=======
+## Private DNS Zone storage
+
+variable "create_private_dns_zone" {  
+  description = "Boolean flag which controls if private DNS should be created."
+  default     = true
+  type        = bool
+}
+
+
+variable "private_dns_zone_name" {
+  type = string
+  default = "privatelink.file.core.windows.net"
+  
+}
+
+variable "fileshare_resource_group" {
+  type = string
+  default = "example-resources"
+  
+}
+
+variable "fileshare_vnet_name" {
+  type = string
+  default = "example-network"
+  
+}
+
+variable "fileshare_subnet_name" {
+  type = string
+  default = "endpoint_subnet"
+}
+
+variable "subresource_names" {
+type = list(string)
+default = [ "file" ]
+} 
+
+>>>>>>> 6b07966 (adding gitignore)
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
   default     = {}
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 6b07966 (adding gitignore)
