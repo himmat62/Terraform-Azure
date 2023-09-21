@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-=======
 /**
 
->>>>>>> 6b07966 (adding gitignore)
 resource "azurerm_virtual_network" "connectivity" {
   for_each = local.azurerm_virtual_network
 
@@ -162,13 +159,4 @@ resource "azurerm_virtual_network_gateway" "connectivity" {
   ]
 }
 
-<<<<<<< HEAD
-
-=======
 **/
->>>>>>> 6b07966 (adding gitignore)
-
-
-
-
-

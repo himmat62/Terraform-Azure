@@ -2,29 +2,20 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-<<<<<<< HEAD
-      version = "=3.0.0"
-=======
       version = "=3.73.0"
     }
     http = {
       source = "hashicorp/http"
       version = "3.4.0"
->>>>>>> 6b07966 (adding gitignore)
     }
   }
 }
 
-<<<<<<< HEAD
-# Configure the Microsoft Azure Provider
-provider "azurerm" {
-=======
 provider "http" {}
 
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
   subscription_id            = var.hub_sub_id
->>>>>>> 6b07966 (adding gitignore)
   skip_provider_registration = true # This is only required when the User, Service Principal, or Identity running Terraform lacks the permissions to register Azure Resource Providers.
   features {
     resource_group {

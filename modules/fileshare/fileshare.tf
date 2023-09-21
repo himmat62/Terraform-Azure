@@ -132,9 +132,3 @@ resource "azurerm_private_dns_a_record" "dns_a" {
   records             = [azurerm_private_endpoint.endpoint[count.index].private_service_connection.0.private_ip_address]
 
 }
-
-
-
-
-
-

@@ -1,11 +1,6 @@
 variable "tags" {
   description = "If specified, will set the default tags for all resources deployed by this module where supported."
   default = {
-<<<<<<< HEAD
-    ProjectName  = "ABCD testing"
-    ProjectOwner = "inder"
-    deployedBy   = "terraform"
-=======
     "CostCenter"   = "PRJ_12234"
     "Environemnt"  = "Prod"
     "ProjectName"  = "London ALZ Setup"
@@ -14,7 +9,6 @@ variable "tags" {
     "deployedBy"   = "terraform"
     "description"  = "hub-for-transit-gateway"
     "resource"     = "resource-group"
->>>>>>> 6b07966 (adding gitignore)
   }
 
 }
@@ -26,11 +20,7 @@ variable "existing_ddos_protection_plan_resource_id" {
 }
 
 variable "hub_sub_id" {
-<<<<<<< HEAD
-  default = "0cfe2870-d256-4119-b0a3-16293ac11bdc"
-=======
   default = "06b9deda-e935-46b7-b34f-51d4946229ee"
->>>>>>> 6b07966 (adding gitignore)
   validation {
     condition     = can(regex("^[a-z0-9-]{36}$", var.hub_sub_id)) || var.hub_sub_id == ""
     error_message = "Value must be a valid Subscription ID (GUID)."
@@ -38,11 +28,7 @@ variable "hub_sub_id" {
 
 }
 variable "management_sub_id" {
-<<<<<<< HEAD
-  default = "0cfe2870-d256-4119-b0a3-16293ac11bdc"
-=======
   default = "f16549f0-c47f-4c78-94f3-f005e2ff26a7"
->>>>>>> 6b07966 (adding gitignore)
   validation {
     condition     = can(regex("^[a-z0-9-]{36}$", var.management_sub_id)) || var.management_sub_id == ""
     error_message = "Value must be a valid Subscription ID (GUID)."
@@ -50,11 +36,7 @@ variable "management_sub_id" {
 
 }
 variable "rsf_sub_id" {
-<<<<<<< HEAD
-  default = "0cfe2870-d256-4119-b0a3-16293ac11bdc"
-=======
   default = "6b350204-f4f4-4e94-add6-5a1aa8a16e6c"
->>>>>>> 6b07966 (adding gitignore)
   validation {
     condition     = can(regex("^[a-z0-9-]{36}$", var.rsf_sub_id)) || var.rsf_sub_id == ""
     error_message = "Value must be a valid Subscription ID (GUID)."
@@ -62,11 +44,7 @@ variable "rsf_sub_id" {
 
 }
 variable "identity_sub_id" {
-<<<<<<< HEAD
-  default = "0cfe2870-d256-4119-b0a3-16293ac11bdc"
-=======
   default = "be53d3d4-8449-4119-b619-a9d343613474"
->>>>>>> 6b07966 (adding gitignore)
   validation {
     condition     = can(regex("^[a-z0-9-]{36}$", var.identity_sub_id)) || var.identity_sub_id == ""
     error_message = "Value must be a valid Subscription ID (GUID)."
@@ -90,13 +68,8 @@ variable "resource_group_names_management" {
   type        = map(any)
   description = "If specified, allows full customization of common settings for all resources (by type) deployed by this module."
   default = {
-<<<<<<< HEAD
-    "test1" = {
-      "name"        = "test1"
-=======
     "management-001" = {
       "name"        = "management-001"
->>>>>>> 6b07966 (adding gitignore)
       "location"    = "uksouth"
       "description" = "testing"
     }
@@ -108,15 +81,9 @@ variable "resource_group_names_identity" {
   type        = map(any)
   description = "If specified, allows full customization of common settings for all resources (by type) deployed by this module."
   default = {
-<<<<<<< HEAD
-    "identity-location" = {
-      "name"        = "identity-location"
-      "location"    = "australiacentral"
-=======
     "identity-001" = {
       "name"        = "identity-001"
       "location"    = "uksouth"
->>>>>>> 6b07966 (adding gitignore)
       "description" = "testing"
     }
   }
@@ -125,13 +92,8 @@ variable "resource_group_names_hub" {
   type        = map(any)
   description = "If specified, allows full customization of common settings for all resources (by type) deployed by this module."
   default = {
-<<<<<<< HEAD
-    "test1" = {
-      "name"        = "test1"
-=======
     "hub-001" = {
       "name"        = "hub-001"
->>>>>>> 6b07966 (adding gitignore)
       "location"    = "uksouth"
       "description" = "testing"
     }
