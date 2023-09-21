@@ -5,8 +5,11 @@ terraform {
       version = "=3.73.0"
     }
     http = {
-      source = "hashicorp/http"
+      source  = "hashicorp/http"
       version = "3.4.0"
+    }
+    azuread = {
+      source = "hashicorp/azuread"
     }
   }
 }

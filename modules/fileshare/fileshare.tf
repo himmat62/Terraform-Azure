@@ -1,12 +1,3 @@
-locals {
-  account_tier             = (var.account_kind == "FileStorage" ? "Premium" : split("_", var.skuname)[0])
-  account_replication_type = (local.account_tier == "Premium" ? "ZRS" : split("_", var.skuname)[1])
-  resource_group_name      = element(coalescelist(data.azurerm_resource_group.rg-rsf.*.name, azurerm_resource_group.rg-new.*.name, [""]), 0)
-  location                 = element(coalescelist(data.azurerm_resource_group.rg-rsf.*.location, azurerm_resource_group.rg-new.*.location, [""]), 0)
-  storage_account_name     = lower(var.storage_account_name)
-
-}
-
 data "http" "ip" {
   url = "https://ifconfig.me/ip"
 }
@@ -54,19 +45,67 @@ resource "azurerm_storage_account" "lz-storage" {
   cross_tenant_replication_enabled = var.cross_tenant_replication_enabled
   large_file_share_enabled = var.large_file_share_enabled
 
+  shared_access_key_enabled = var.shared_access_key_enabled
+
+  #multichannel_enabled = var.multichannel_enabled
+
+
+  dynamic "identity" {
+    for_each = var.managed_identity_type != null ? [1] : []
+    content {
+      type         = var.managed_identity_type
+      identity_ids = var.managed_identity_type == "UserAssigned" || var.managed_identity_type == "SystemAssigned, UserAssigned" ? var.managed_identity_ids : null
+    }
+  }
+
+  /**dynamic "retention_policy" {
+        for_each = var.file_share_retention_policy_in_days != null ? ["enabled"] : []
+        content {
+          days = var.file_share_retention_policy_in_days
+        }
+      } **/
+   dynamic "share_properties" {
+    for_each = var.file_share_cors_rules != null || var.file_share_retention_policy_in_days != null || var.file_share_properties_smb != null ? ["enabled"] : []
+    content {
+      dynamic "cors_rule" {
+        for_each = var.file_share_cors_rules != null ? ["enabled"] : []
+        content {
+          allowed_headers    = local.cors_settings.allowed_headers
+          allowed_methods    = local.cors_settings.allowed_methods
+          allowed_origins    = local.cors_settings.allowed_origins
+          exposed_headers    = local.cors_settings.exposed_headers
+          max_age_in_seconds = local.cors_settings.max_age_in_seconds
+        }
+      }
+
+      dynamic "retention_policy" {
+        for_each = var.file_share_retention_policy_in_days != null ? ["enabled"] : []
+        content {
+          days = var.file_share_retention_policy_in_days
+        }
+      }
+
+      dynamic "smb" {
+        for_each = var.file_share_properties_smb != null ? ["enabled"] : []
+        content {
+          authentication_types            = local.smb_settings.authentication_types
+          channel_encryption_type         = local.smb_settings.channel_encryption_type
+          kerberos_ticket_encryption_type = local.smb_settings.kerberos_ticket_encryption_type
+          versions                        = local.smb_settings.versions
+          multichannel_enabled            = local.smb_settings.multichannel_enabled
+        }
+      }
+    }
+  }   
+
+   lifecycle {
+    ignore_changes = [
+      customer_managed_key
+    ]
+  }
+
   tags = merge({ "ResourceName" = format("%s", local.resource_group_name) }, var.tags)
 
-}
-
-resource "azurerm_storage_share" "lz-fileshare" {
-  for_each             = { for u in var.file_shares : u.name => u }
-  name                 = each.key
-  storage_account_name = azurerm_storage_account.lz-storage.name
-  quota                = each.value.quota
-
-  depends_on = [
-    azurerm_storage_account.lz-storage
-  ]
 
 }
 
@@ -88,6 +127,48 @@ resource "azurerm_storage_account_network_rules" "net_rules" {
     azurerm_storage_account.lz-storage
   ]
 }
+
+resource "azurerm_storage_share" "file_shares" {
+  for_each = try({ for s in var.file_shares : s.name => s }, {})
+
+  storage_account_name = azurerm_storage_account.lz-storage.name
+
+  name  = each.key
+  quota = each.value.quota_in_gb
+
+  enabled_protocol = each.value.enabled_protocol
+  metadata         = each.value.metadata
+
+  dynamic "acl" {
+    for_each = each.value.acl != null ? each.value.acl : []
+
+    content {
+      id = acl.value.id
+
+      access_policy {
+        permissions = acl.value.permissions
+        start       = acl.value.start
+        expiry      = acl.value.expiry
+      }
+    }
+  }
+
+  depends_on = [
+    azurerm_storage_account.lz-storage
+  ]
+
+}
+
+/**  TO DO ..
+
+resource "azurerm_storage_share_directory" "mynewfileshare" {
+  for_each             = { for u in var.file_shares : u.name => u }
+  name                 = "himmat"
+  share_name           = azurerm_storage_share.file_shares[each.key].name
+  storage_account_name = azurerm_storage_account.lz-storage.name
+}
+**/
+
 
 ### Private DNS Zone creation 
 
@@ -131,4 +212,28 @@ resource "azurerm_private_dns_a_record" "dns_a" {
   ttl                 = 300
   records             = [azurerm_private_endpoint.endpoint[count.index].private_service_connection.0.private_ip_address]
 
+} 
+
+/** TO DO .... 
+
+resource "azurerm_storage_account_customer_managed_key" "example" {
+  storage_account_id = azurerm_storage_account.example.id
+  key_vault_id       = azurerm_key_vault.example.id
+  key_name           = azurerm_key_vault_key.example.name
 }
+
+**/
+
+
+/**
+data "azurerm_role_definition" "storage_role" {
+  name = "Storage File Data SMB Share Contributor"
+}
+
+resource "azurerm_role_assignment" "af_role" {
+  scope              = azurerm_storage_account.lz-storage.id
+  role_definition_id = data.azurerm_role_definition.storage_role.id
+  principal_id       = azuread_group.aad_group.id
+}
+
+**/
