@@ -89,7 +89,7 @@ variable "shared_access_key_enabled" {
   default     = true
 }
 
- # Threat Protection 
+# Threat Protection 
 
 variable "enable_advanced_threat_protection" {
   description = "Boolean flag which controls if files are larger than 5120GB (5TB) then it should be true"
@@ -121,15 +121,15 @@ variable "file_share_retention_policy_in_days" {
 variable "file_shares" {
   description = "list of fileshare and thier quota and protocal"
   type = list(object({
-    name = string
-    quota_in_gb = number
+    name             = string
+    quota_in_gb      = number
     enabled_protocol = optional(string)
-    metadata  = optional(map(string))
+    metadata         = optional(map(string))
     acl = optional(list(object({
-      id = string
+      id          = string
       permissions = string
-      start = optional(string)
-      expiry = optional(string)
+      start       = optional(string)
+      expiry      = optional(string)
     })))
   }))
   default = []
@@ -138,11 +138,11 @@ variable "file_shares" {
 variable "file_share_properties_smb" {
   description = "Storage Account file shares smb properties. Possible values are as per comment for each type"
   type = object({
-    versions                        = optional(list(string), null)  ## SMB2.1, SMB3.0 and SMB3.1.1
-    authentication_types            = optional(list(string), null)  ## NTLMv2 and Kerberos
-    kerberos_ticket_encryption_type = optional(list(string), null)  ## RC4-HMAC and AES-256
-    channel_encryption_type         = optional(list(string), null)  ## AES-128-CCM , AES-128-GCM and AES-256-GCM 
-    multichannel_enabled            = optional(bool, null)  ## only support Premium Storage Account 
+    versions                        = optional(list(string), null) ## SMB2.1, SMB3.0 and SMB3.1.1
+    authentication_types            = optional(list(string), null) ## NTLMv2 and Kerberos
+    kerberos_ticket_encryption_type = optional(list(string), null) ## RC4-HMAC and AES-256
+    channel_encryption_type         = optional(list(string), null) ## AES-128-CCM , AES-128-GCM and AES-256-GCM 
+    multichannel_enabled            = optional(bool, null)         ## only support Premium Storage Account 
   })
   default = null
 }
@@ -150,18 +150,18 @@ variable "file_share_properties_smb" {
 variable "file_share_cors_rules" {
   description = "Storage Account file shares CORS rule."
   type = object({
-    allowed_headers    = list(string)  ## A list of headers that are allowed to be a part of the cross-origin request.
-    allowed_methods    = list(string)  ## A list of HTTP methods that are allowed to be executed by the origin. Valid options are DELETE, GET, HEAD, MERGE, POST, OPTIONS, PUT or PATCH.
-    allowed_origins    = list(string)  ## A list of origin domains that will be allowed by CORS
-    exposed_headers    = list(string)  ## A list of response headers that are exposed to CORS clients.
-    max_age_in_seconds = number        ## The number of seconds the client should cache a preflight response.
+    allowed_headers    = list(string) ## A list of headers that are allowed to be a part of the cross-origin request.
+    allowed_methods    = list(string) ## A list of HTTP methods that are allowed to be executed by the origin. Valid options are DELETE, GET, HEAD, MERGE, POST, OPTIONS, PUT or PATCH.
+    allowed_origins    = list(string) ## A list of origin domains that will be allowed by CORS
+    exposed_headers    = list(string) ## A list of response headers that are exposed to CORS clients.
+    max_age_in_seconds = number       ## The number of seconds the client should cache a preflight response.
   })
   default = null
 }
 
 ## Private DNS Zone for storage
 
-variable "create_private_dns_zone" {  
+variable "create_private_dns_zone" {
   description = "Boolean flag which controls if private DNS should be created."
   default     = true
   type        = bool
@@ -169,32 +169,32 @@ variable "create_private_dns_zone" {
 
 
 variable "private_dns_zone_name" {
-  type = string
+  type    = string
   default = "privatelink.file.core.windows.net"
-  
+
 }
 
 variable "fileshare_resource_group" {
-  type = string
+  type    = string
   default = "example-resources"
-  
+
 }
 
 variable "fileshare_vnet_name" {
-  type = string
+  type    = string
   default = "example-network"
-  
+
 }
 
 variable "fileshare_subnet_name" {
-  type = string
+  type    = string
   default = "endpoint_subnet"
 }
 
 variable "subresource_names" {
-type = list(string)
-default = [ "file" ]
-} 
+  type    = list(string)
+  default = ["file"]
+}
 
 #Identity 
 

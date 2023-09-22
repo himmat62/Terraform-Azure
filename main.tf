@@ -24,7 +24,7 @@ module "fileshare" {
   network_rules = {
     default_action = "Allow"
     bypass         = ["AzureServices"]
-    ip_rules       = ["217.164.2.107"] #["PublicIP", data.http.ip.response_body]  Supports IPv4 address it will not accept ipv6
+    ip_rules       = ["217.164.2.107"] #["PublicIP", data.http.ip.response_body]  Supports IPv4 address but not ipv6
 
   }
   file_shares = [
@@ -39,10 +39,6 @@ module "fileshare" {
     }
   ]
 
-  /**file_shares = [
-    #{ name = "test", quota = 100 },
-    { name = "smbfileshare2", quota = 100 }
-  ] **/
 
   ##private endpoint enabled if public_network_access_enabled = false
 
@@ -58,45 +54,3 @@ module "fileshare" {
   }
 
 }
-
-/** for checking Storage account for existing resource group
-
-module "fileshare-02" {
-
-  providers = {
-    azurerm = azurerm.rsf
-  }
-
-  source = "./modules/fileshare"
-
-  create_resource_group = false
-  resource_group_name   = "rsf"
-  location = "uksouth"
-  account_kind = "StorageV2"
-  skuname = "Standard_LRS"
-  storage_account_name  = "mydefaultstorage"
-
-  enable_advanced_threat_protection = false ##Microsoft defender for storage sensitve data threat detection and on-uploading malware scanning 
-  public_network_access_enabled = true ## after disable public access it will not allow to enable
-
-  //optional only apply if public_network_access_enabled = true
-  network_rules = {
-    default_action = "Allow"
-    ip_rules       = ["217.164.2.107"]
-
-  }
-
-  file_shares = [
-    { name = "test", quota = 10 },
-    { name = "smbfileshare2", quota = 10 }
-  ]
-
-  tags = {
-    ProjectName = "londonalz"
-    Env         = "test"
-    Owner       = "himmat"
-  }
-
-}
-
-**/

@@ -33,17 +33,17 @@ resource "azurerm_resource_group" "rg-new" {
 
 
 resource "azurerm_storage_account" "lz-storage" {
-  name                          = "${local.storage_account_name}${random_string.unique.result}"
-  resource_group_name           = local.resource_group_name
-  location                      = local.location
-  account_kind                  = var.account_kind
-  account_tier                  = local.account_tier #TransactionOptimized, Hot,Cool, Premium
-  account_replication_type      = local.account_replication_type
-  enable_https_traffic_only     = var.enable_https_traffic_only
-  min_tls_version               = var.min_tls_version
-  public_network_access_enabled = var.public_network_access_enabled
+  name                             = "${local.storage_account_name}${random_string.unique.result}"
+  resource_group_name              = local.resource_group_name
+  location                         = local.location
+  account_kind                     = var.account_kind
+  account_tier                     = local.account_tier #TransactionOptimized, Hot,Cool, Premium
+  account_replication_type         = local.account_replication_type
+  enable_https_traffic_only        = var.enable_https_traffic_only
+  min_tls_version                  = var.min_tls_version
+  public_network_access_enabled    = var.public_network_access_enabled
   cross_tenant_replication_enabled = var.cross_tenant_replication_enabled
-  large_file_share_enabled = var.large_file_share_enabled
+  large_file_share_enabled         = var.large_file_share_enabled
 
   shared_access_key_enabled = var.shared_access_key_enabled
 
@@ -64,7 +64,7 @@ resource "azurerm_storage_account" "lz-storage" {
           days = var.file_share_retention_policy_in_days
         }
       } **/
-   dynamic "share_properties" {
+  dynamic "share_properties" {
     for_each = var.file_share_cors_rules != null || var.file_share_retention_policy_in_days != null || var.file_share_properties_smb != null ? ["enabled"] : []
     content {
       dynamic "cors_rule" {
@@ -96,9 +96,9 @@ resource "azurerm_storage_account" "lz-storage" {
         }
       }
     }
-  }   
+  }
 
-   lifecycle {
+  lifecycle {
     ignore_changes = [
       customer_managed_key
     ]
@@ -179,7 +179,7 @@ resource "azurerm_private_dns_zone" "private_dnszone" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "network_link" {
-  count               = var.create_private_dns_zone == true ? 1 : 0
+  count                 = var.create_private_dns_zone == true ? 1 : 0
   name                  = "vnet_link_${local.storage_account_name}"
   resource_group_name   = local.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.private_dnszone[count.index].name
@@ -212,7 +212,7 @@ resource "azurerm_private_dns_a_record" "dns_a" {
   ttl                 = 300
   records             = [azurerm_private_endpoint.endpoint[count.index].private_service_connection.0.private_ip_address]
 
-} 
+}
 
 /** TO DO .... 
 

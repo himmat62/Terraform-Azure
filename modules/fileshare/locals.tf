@@ -6,6 +6,6 @@ locals {
   storage_account_name     = lower(var.storage_account_name)
 
   cors_settings = var.file_share_cors_rules
-  smb_settings = var.file_share_properties_smb
+  smb_settings  = var.file_share_properties_smb
 
 }
