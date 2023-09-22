@@ -30,11 +30,11 @@ module "fileshare" {
   file_shares = [
     {
       name        = "share-smb"
-      quota_in_gb = 500
+      quota_in_gb = 100
     },
     {
       name             = "share-nfs"
-      quota_in_gb      = 700
+      quota_in_gb      = 100
       enabled_protocol = "NFS" # Note that NFS file shares are not backed up due to Azure limitation 
     }
   ]
