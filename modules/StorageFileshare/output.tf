@@ -1,3 +1,4 @@
+/**
 output "storage_file_shares" {
   description = "Created file shares in the Storage Account."
   value       = azurerm_storage_share.file_shares
@@ -17,3 +18,4 @@ output "id" {
   value       = azurerm_storage_account.lz-storage.id
 }
 
+**/

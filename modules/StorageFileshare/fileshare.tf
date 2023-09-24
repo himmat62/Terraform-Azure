@@ -1,4 +1,5 @@
-data "http" "ip" {
+
+data "http" "ip" { ##Get TF client Public IP for subsequest to lock down Storage account if default action is Deny
   url = "https://ifconfig.me/ip"
 }
 
@@ -31,23 +32,20 @@ resource "azurerm_resource_group" "rg-new" {
   tags     = merge({ "ResourceName" = format("%s", var.resource_group_name) }, var.tags)
 }
 
-
 resource "azurerm_storage_account" "lz-storage" {
-  name                             = "${local.storage_account_name}${random_string.unique.result}"
-  resource_group_name              = local.resource_group_name
-  location                         = local.location
-  account_kind                     = var.account_kind
-  account_tier                     = local.account_tier #TransactionOptimized, Hot,Cool, Premium
-  account_replication_type         = local.account_replication_type
-  enable_https_traffic_only        = var.enable_https_traffic_only
-  min_tls_version                  = var.min_tls_version
-  public_network_access_enabled    = var.public_network_access_enabled
-  cross_tenant_replication_enabled = var.cross_tenant_replication_enabled
-  large_file_share_enabled         = var.large_file_share_enabled
-
-  shared_access_key_enabled = var.shared_access_key_enabled
-
-  #multichannel_enabled = var.multichannel_enabled
+  name                              = "${local.storage_account_name}${random_string.unique.result}"
+  resource_group_name               = local.resource_group_name
+  location                          = local.location
+  account_kind                      = var.account_kind
+  account_tier                      = local.account_tier #TransactionOptimized, Hot,Cool, Premium
+  account_replication_type          = local.account_replication_type
+  enable_https_traffic_only         = var.enable_https_traffic_only
+  min_tls_version                   = var.min_tls_version
+  public_network_access_enabled     = var.public_network_access_enabled
+  cross_tenant_replication_enabled  = var.cross_tenant_replication_enabled
+  large_file_share_enabled          = var.large_file_share_enabled
+  shared_access_key_enabled         = var.shared_access_key_enabled
+  infrastructure_encryption_enabled = var.infrastructure_encryption_enabled
 
 
   dynamic "identity" {
@@ -58,17 +56,11 @@ resource "azurerm_storage_account" "lz-storage" {
     }
   }
 
-  /**dynamic "retention_policy" {
-        for_each = var.file_share_retention_policy_in_days != null ? ["enabled"] : []
-        content {
-          days = var.file_share_retention_policy_in_days
-        }
-      } **/
   dynamic "share_properties" {
-    for_each = var.file_share_cors_rules != null || var.file_share_retention_policy_in_days != null || var.file_share_properties_smb != null ? ["enabled"] : []
+    for_each = local.cors_settings != null || var.file_share_retention_policy_in_days != null || var.file_share_properties_smb != null ? ["enabled"] : []
     content {
       dynamic "cors_rule" {
-        for_each = var.file_share_cors_rules != null ? ["enabled"] : []
+        for_each = local.cors_settings != null ? ["enabled"] : []
         content {
           allowed_headers    = local.cors_settings.allowed_headers
           allowed_methods    = local.cors_settings.allowed_methods
@@ -86,7 +78,7 @@ resource "azurerm_storage_account" "lz-storage" {
       }
 
       dynamic "smb" {
-        for_each = var.file_share_properties_smb != null ? ["enabled"] : []
+        for_each = local.smb_settings != null ? ["enabled"] : []
         content {
           authentication_types            = local.smb_settings.authentication_types
           channel_encryption_type         = local.smb_settings.channel_encryption_type
@@ -128,6 +120,7 @@ resource "azurerm_storage_account_network_rules" "net_rules" {
   ]
 }
 
+
 resource "azurerm_storage_share" "file_shares" {
   for_each = try({ for s in var.file_shares : s.name => s }, {})
 
@@ -157,7 +150,7 @@ resource "azurerm_storage_share" "file_shares" {
     azurerm_storage_account.lz-storage
   ]
 
-}
+} 
 
 /**  TO DO ..
 
@@ -212,7 +205,7 @@ resource "azurerm_private_dns_a_record" "dns_a" {
   ttl                 = 300
   records             = [azurerm_private_endpoint.endpoint[count.index].private_service_connection.0.private_ip_address]
 
-}
+} 
 
 /** TO DO .... 
 
@@ -224,16 +217,3 @@ resource "azurerm_storage_account_customer_managed_key" "example" {
 
 **/
 
-
-/**
-data "azurerm_role_definition" "storage_role" {
-  name = "Storage File Data SMB Share Contributor"
-}
-
-resource "azurerm_role_assignment" "af_role" {
-  scope              = azurerm_storage_account.lz-storage.id
-  role_definition_id = data.azurerm_role_definition.storage_role.id
-  principal_id       = azuread_group.aad_group.id
-}
-
-**/

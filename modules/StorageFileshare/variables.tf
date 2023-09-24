@@ -89,6 +89,12 @@ variable "shared_access_key_enabled" {
   default     = true
 }
 
+variable "infrastructure_encryption_enabled" {
+  description = "Boolean flag which controls if infra encryption enabled or not."
+  default     = true
+  type        = bool
+}
+
 # Threat Protection 
 
 variable "enable_advanced_threat_protection" {
@@ -118,23 +124,6 @@ variable "file_share_retention_policy_in_days" {
   default     = null
 }
 
-variable "file_shares" {
-  description = "list of fileshare and thier quota and protocal"
-  type = list(object({
-    name             = string
-    quota_in_gb      = number
-    enabled_protocol = optional(string)
-    metadata         = optional(map(string))
-    acl = optional(list(object({
-      id          = string
-      permissions = string
-      start       = optional(string)
-      expiry      = optional(string)
-    })))
-  }))
-  default = []
-}
-
 variable "file_share_properties_smb" {
   description = "Storage Account file shares smb properties. Possible values are as per comment for each type"
   type = object({
@@ -157,6 +146,23 @@ variable "file_share_cors_rules" {
     max_age_in_seconds = number       ## The number of seconds the client should cache a preflight response.
   })
   default = null
+}
+
+variable "file_shares" {
+  description = "list of fileshare and thier quota and protocal"
+  type = list(object({
+    name             = string
+    quota_in_gb      = number
+    enabled_protocol = optional(string)
+    metadata         = optional(map(string))
+    acl = optional(list(object({
+      id          = string
+      permissions = string
+      start       = optional(string)
+      expiry      = optional(string)
+    })))
+  }))
+  default = []
 }
 
 ## Private DNS Zone for storage
@@ -206,8 +212,8 @@ variable "managed_identity_type" {
 
 variable "managed_identity_ids" {
   description = "A list of User Managed Identity ID's which should be assigned to storage account"
-  default     = null
   type        = list(string)
+  default     = null
 }
 
 variable "tags" {

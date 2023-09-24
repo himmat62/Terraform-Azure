@@ -1,14 +1,10 @@
-##Get TF client Public IP for subsequest to lock down Storage account if default action is Deny
-
-
-
-module "fileshare" {
+module "StorageFileshare" {
 
   providers = {
     azurerm = azurerm.rsf
   }
 
-  source = "./modules/fileshare"
+  source = "./modules/StorageFileshare"
 
   create_resource_group = true
   #resource_group_name   = "rsf"
