@@ -206,7 +206,7 @@ variable "subresource_names" {
 
 variable "managed_identity_type" {
   description = "The type of Managed Identity which should be assigned . Possible values are `SystemAssigned`, `UserAssigned` and `SystemAssigned, UserAssigned`"
-  default     = null
+  default     = "SystemAssigned"
   type        = string
 }
 

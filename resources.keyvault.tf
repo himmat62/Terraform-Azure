@@ -94,6 +94,25 @@ resource "azurerm_key_vault_access_policy" "policy" {
   storage_permissions     = lookup(each.value, "storage_permissions")
 }
 
+/**
+resource "azurerm_key_vault_key" "cmk_key" {
+  name         = "tfex-key"
+  key_vault_id = azurerm_key_vault.rsf_vault.id
+  key_type     = "RSA"
+  key_size     = 2048
+  key_opts = [
+    "decrypt",
+    "encrypt",
+    "sign",
+    "unwrapKey",
+    "verify",
+    "wrapKey"
+  ]
+
+  depends_on = [
+    azurerm_key_vault_access_policy.default_policy
+  ]
+}**/
 ##########################################
 
 #KeyVault for HUB Subscription
@@ -208,7 +227,7 @@ resource "azurerm_resource_group" "rg-new_mgmt" {
 }
 
 resource "random_string" "azurerm_key_vault_mgmt_name" {
-  length  = 13
+  length  = 5
   lower   = true
   numeric = false
   special = false
