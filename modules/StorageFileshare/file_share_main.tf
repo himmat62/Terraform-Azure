@@ -87,8 +87,28 @@ resource "azurerm_storage_account" "lz-storage" {
           multichannel_enabled            = local.smb_settings.multichannel_enabled
         }
       }
+
     }
   }
+
+      dynamic "azure_files_authentication" {
+        for_each = var.file_share_authentication != null ? ["enabled"] : []
+        content {
+          directory_type = var.file_share_authentication.directory_type
+          dynamic "active_directory" {
+            for_each = var.file_share_authentication.directory_type == "AD" ? [var.file_share_authentication.active_directory] : []
+            iterator = ad
+            content {
+              storage_sid         = ad.value.storage_sid
+              domain_name         = ad.value.domain_name
+              domain_sid          = ad.value.domain_sid
+              domain_guid         = ad.value.domain_guid
+              forest_name         = ad.value.forest_name
+              netbios_domain_name = ad.value.netbios_domain_name
+            }
+          }
+        }
+      }
 
   lifecycle {
     ignore_changes = [
@@ -145,12 +165,22 @@ resource "azurerm_storage_share" "file_shares" {
       }
     }
   }
+  lifecycle {
+    precondition {
+      condition     = each.value.enabled_protocol == "NFS"  ? local.account_tier == "Premium" : true
+      error_message = "NFS file shares can only be enabled on Premium Storage Accounts.( To do --- secure transfer should be disabled for NFS)"
+    }
+    precondition {
+      condition     = local.account_tier != "Premium" || each.value.quota_in_gb >= 100
+      error_message = "File share quota must be at least 100Gb for Premium Storage Accounts."
+    }
+  }
 
   depends_on = [
     azurerm_storage_account.lz-storage
   ]
 
-} 
+}
 
 /**  TO DO ..
 
@@ -176,8 +206,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "network_link" {
   name                  = "vnet_link_${local.storage_account_name}"
   resource_group_name   = local.resource_group_name
   private_dns_zone_name = azurerm_private_dns_zone.private_dnszone[count.index].name
-  #virtual_network_id    = "/subscriptions/6b350204-f4f4-4e94-add6-5a1aa8a16e6c/resourceGroups/example-resources/providers/Microsoft.Network/virtualNetworks/example-network"
-  virtual_network_id = data.azurerm_virtual_network.fileshare-vnet.id
+  virtual_network_id    = data.azurerm_virtual_network.fileshare-vnet.id
 }
 
 resource "azurerm_private_endpoint" "endpoint" {
@@ -185,8 +214,7 @@ resource "azurerm_private_endpoint" "endpoint" {
   name                = "pvtendpoint-${local.storage_account_name}"
   location            = local.location
   resource_group_name = local.resource_group_name
-  #subnet_id           = "/subscriptions/6b350204-f4f4-4e94-add6-5a1aa8a16e6c/resourceGroups/example-resources/providers/Microsoft.Network/virtualNetworks/example-network/subnets/endpoint_subnet"
-  subnet_id = data.azurerm_subnet.fileshare_snet.id
+  subnet_id           = data.azurerm_subnet.fileshare_snet.id
 
 
   private_service_connection {
@@ -205,7 +233,7 @@ resource "azurerm_private_dns_a_record" "dns_a" {
   ttl                 = 300
   records             = [azurerm_private_endpoint.endpoint[count.index].private_service_connection.0.private_ip_address]
 
-} 
+}
 
 /** TO DO .... 
 

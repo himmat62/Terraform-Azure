@@ -148,6 +148,22 @@ variable "file_share_cors_rules" {
   default = null
 }
 
+variable "file_share_authentication" {
+  description = "Storage Account file shares authentication configuration."
+  type = object({
+    directory_type = string
+    active_directory = optional(object({
+      storage_sid         = string
+      domain_name         = string
+      domain_sid          = string
+      domain_guid         = string
+      forest_name         = string
+      netbios_domain_name = string
+    }))
+  })
+  default = null
+}
+
 variable "file_shares" {
   description = "list of fileshare and thier quota and protocal"
   type = list(object({
@@ -165,7 +181,7 @@ variable "file_shares" {
   default = []
 }
 
-## Private DNS Zone for storage
+## Private DNS Zone for FileShare Storage
 
 variable "create_private_dns_zone" {
   description = "Boolean flag which controls if private DNS should be created."
