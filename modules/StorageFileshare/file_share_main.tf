@@ -32,7 +32,7 @@ resource "azurerm_resource_group" "rg-new" {
   tags     = merge({ "ResourceName" = format("%s", var.resource_group_name) }, var.tags)
 }
 
-resource "azurerm_storage_account" "lz-storage" {
+resource "azurerm_storage_account" "fileshare_storage" {
   name                              = "${local.storage_account_name}${random_string.unique.result}"
   resource_group_name               = local.resource_group_name
   location                          = local.location
@@ -91,24 +91,24 @@ resource "azurerm_storage_account" "lz-storage" {
     }
   }
 
-      dynamic "azure_files_authentication" {
-        for_each = var.file_share_authentication != null ? ["enabled"] : []
+  dynamic "azure_files_authentication" {
+    for_each = var.file_share_authentication != null ? ["enabled"] : []
+    content {
+      directory_type = var.file_share_authentication.directory_type
+      dynamic "active_directory" {
+        for_each = var.file_share_authentication.directory_type == "AD" ? [var.file_share_authentication.active_directory] : []
+        iterator = ad
         content {
-          directory_type = var.file_share_authentication.directory_type
-          dynamic "active_directory" {
-            for_each = var.file_share_authentication.directory_type == "AD" ? [var.file_share_authentication.active_directory] : []
-            iterator = ad
-            content {
-              storage_sid         = ad.value.storage_sid
-              domain_name         = ad.value.domain_name
-              domain_sid          = ad.value.domain_sid
-              domain_guid         = ad.value.domain_guid
-              forest_name         = ad.value.forest_name
-              netbios_domain_name = ad.value.netbios_domain_name
-            }
-          }
+          storage_sid         = ad.value.storage_sid
+          domain_name         = ad.value.domain_name
+          domain_sid          = ad.value.domain_sid
+          domain_guid         = ad.value.domain_guid
+          forest_name         = ad.value.forest_name
+          netbios_domain_name = ad.value.netbios_domain_name
         }
       }
+    }
+  }
 
   lifecycle {
     ignore_changes = [
@@ -124,19 +124,19 @@ resource "azurerm_storage_account" "lz-storage" {
 ## Advance Threat protection Microsoft Defender enable 
 
 resource "azurerm_advanced_threat_protection" "atp" {
-  target_resource_id = azurerm_storage_account.lz-storage.id
+  target_resource_id = azurerm_storage_account.fileshare_storage.id
   enabled            = var.enable_advanced_threat_protection
 }
 
 resource "azurerm_storage_account_network_rules" "net_rules" {
   count                      = var.public_network_access_enabled == true ? 1 : 0
-  storage_account_id         = azurerm_storage_account.lz-storage.id
+  storage_account_id         = azurerm_storage_account.fileshare_storage.id
   default_action             = var.network_rules.default_action
   bypass                     = var.network_rules.bypass
   ip_rules                   = var.network_rules.ip_rules
   virtual_network_subnet_ids = var.network_rules.virtual_network_subnet_ids
   depends_on = [
-    azurerm_storage_account.lz-storage
+    azurerm_storage_account.fileshare_storage
   ]
 }
 
@@ -144,7 +144,7 @@ resource "azurerm_storage_account_network_rules" "net_rules" {
 resource "azurerm_storage_share" "file_shares" {
   for_each = try({ for s in var.file_shares : s.name => s }, {})
 
-  storage_account_name = azurerm_storage_account.lz-storage.name
+  storage_account_name = azurerm_storage_account.fileshare_storage.name
 
   name  = each.key
   quota = each.value.quota_in_gb
@@ -167,8 +167,8 @@ resource "azurerm_storage_share" "file_shares" {
   }
   lifecycle {
     precondition {
-      condition     = each.value.enabled_protocol == "NFS"  ? local.account_tier == "Premium" : true
-      error_message = "NFS file shares can only be enabled on Premium Storage Accounts.( To do --- secure transfer should be disabled for NFS)"
+      condition     = each.value.enabled_protocol == "NFS" ? local.account_tier == "Premium" : true
+      error_message = "NFS file shares can only be enabled on Premium Storage Accounts.( To do --- **secure transfer should be disabled for NFS)"
     }
     precondition {
       condition     = local.account_tier != "Premium" || each.value.quota_in_gb >= 100
@@ -177,7 +177,7 @@ resource "azurerm_storage_share" "file_shares" {
   }
 
   depends_on = [
-    azurerm_storage_account.lz-storage
+    azurerm_storage_account.fileshare_storage
   ]
 
 }
@@ -188,7 +188,7 @@ resource "azurerm_storage_share_directory" "mynewfileshare" {
   for_each             = { for u in var.file_shares : u.name => u }
   name                 = "himmat"
   share_name           = azurerm_storage_share.file_shares[each.key].name
-  storage_account_name = azurerm_storage_account.lz-storage.name
+  storage_account_name = azurerm_storage_account.fileshare_storage.name
 }
 **/
 
@@ -219,7 +219,7 @@ resource "azurerm_private_endpoint" "endpoint" {
 
   private_service_connection {
     name                           = "pvtsvcconn${local.storage_account_name}"
-    private_connection_resource_id = azurerm_storage_account.lz-storage.id
+    private_connection_resource_id = azurerm_storage_account.fileshare_storage.id
     is_manual_connection           = false
     subresource_names              = var.subresource_names
   }
@@ -244,4 +244,12 @@ resource "azurerm_storage_account_customer_managed_key" "example" {
 }
 
 **/
+
+
+resource "azurerm_ssh_public_key" "ssh_key" {
+  name = "testpubkey"
+  resource_group_name = local.resource_group_name
+  location = local.location
+  public_key = file(var.pub_key_path)
+}
 

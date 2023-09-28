@@ -67,37 +67,18 @@ variable "resource_group_names_by_scope" {
 variable "resource_group_names_management" {
   type        = map(any)
   description = "If specified, allows full customization of common settings for all resources (by type) deployed by this module."
-  default = {
-    "management-001" = {
-      "name"        = "management-001"
-      "location"    = "uksouth"
-      "description" = "testing"
-    }
-
-  }
+  default     = {}
 
 }
 variable "resource_group_names_identity" {
   type        = map(any)
   description = "If specified, allows full customization of common settings for all resources (by type) deployed by this module."
-  default = {
-    "identity-001" = {
-      "name"        = "identity-001"
-      "location"    = "uksouth"
-      "description" = "testing"
-    }
-  }
+  default     = {}
 }
 variable "resource_group_names_hub" {
   type        = map(any)
   description = "If specified, allows full customization of common settings for all resources (by type) deployed by this module."
-  default = {
-    "hub-001" = {
-      "name"        = "hub-001"
-      "location"    = "uksouth"
-      "description" = "testing"
-    }
-  }
+  default     = {}
 }
 variable "resource_group_names_rsf" {
   type        = map(any)

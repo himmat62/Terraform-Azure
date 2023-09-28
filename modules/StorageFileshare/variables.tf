@@ -19,7 +19,7 @@ variable "location" {
 
 variable "storage_account_name" { #can only consist of lowercase letters and numbers, and must be between 3 and 24 characters long
   description = "The name of the azure storage account"
-  default     = "alzstorage"
+  default     = "filesharestorage"
   type        = string
 }
 
@@ -148,11 +148,11 @@ variable "file_share_cors_rules" {
   default = null
 }
 
-variable "file_share_authentication" {
+variable "file_share_authentication" {  
   description = "Storage Account file shares authentication configuration."
   type = object({
-    directory_type = string
-    active_directory = optional(object({
+    directory_type = string   ## directory type possible values are AADDS, AD and AADKERB  
+    active_directory = optional(object({   ## this block required when directiory_type is AD 
       storage_sid         = string
       domain_name         = string
       domain_sid          = string
@@ -236,4 +236,10 @@ variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
   default     = {}
+}
+
+variable "pub_key_path" {
+    type = string
+    default = "./modules/StorageFileshare/keys/sensor.pub"
+  
 }

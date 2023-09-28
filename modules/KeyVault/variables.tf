@@ -1,38 +1,19 @@
 variable "create_resource_group" {
   description = "Boolean flag which controls if new resource group needs to be created"
-  default     = false
   type        = bool
+  default     = true
 }
 
-variable "resource_group_name_rsf" {
+variable "resource_group_name" {
   description = "Resource Group the resources will belong to"
   type        = string
   default     = "rsf"
 }
 
-variable "resource_group_name_hub" {
-  description = "Resource Group the resources will belong to"
+variable "location" {
+  description = "Location for keyvault to be deployed"
   type        = string
-  default     = "hub"
-}
-
-variable "resource_group_name_mgmt" {
-  description = "Resource Group the resources will belong to"
-  type        = string
-  default     = "management"
-}
-
-/**
-variable "resource_group_name_identity" {
-  description = "Resource Group the resources will belong to"
-  type        = string
-  default     = "identity"
-} **/
-
-variable "tenant_id" {
-  description = "The Azure Active Directory tenant ID that should be used for authenticating requests to the Key Vault. Default is the current one."
-  type        = string
-  default     = ""
+  default     = "uksouth"
 }
 
 variable "key_vault_sku_pricing_tier" {
@@ -145,4 +126,10 @@ variable "certificate_contacts" {
     phone = optional(string)
   }))
   default = []
+}
+
+variable "kv_tags" {
+  type    = map(any)
+  default = {}
+
 }
