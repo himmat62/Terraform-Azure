@@ -237,9 +237,3 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
-
-variable "pub_key_path" {
-    type = string
-    default = "./modules/StorageFileshare/keys/sensor.pub"
-  
-}

@@ -244,12 +244,3 @@ resource "azurerm_storage_account_customer_managed_key" "example" {
 }
 
 **/
-
-
-resource "azurerm_ssh_public_key" "ssh_key" {
-  name = "testpubkey"
-  resource_group_name = local.resource_group_name
-  location = local.location
-  public_key = file(var.pub_key_path)
-}
-
